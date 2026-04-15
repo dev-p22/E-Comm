@@ -6,7 +6,7 @@ export const productSchema = z.object({
     .min(3, "Title must be at least 3 characters"),
 
   price: z
-    .number({ invalid_type_error: "Price must be a number" })
+    .number("Price must be a number")
     .min(1, "Price must be greater than 0"),
 
   description: z
