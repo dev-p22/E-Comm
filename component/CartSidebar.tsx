@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function CartSidebar({ setOpenCart, openCart, user }: any) {
   const [items, setItems] = useState([]);
-  const [loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const fetchCart = async () => {
     setLoading(true);
@@ -25,9 +27,8 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
 
   useEffect(() => {
     if (user?.uid) fetchCart();
-  }, [user,openCart]);
-  
-  
+  }, [user, openCart]);
+
   const removeItem = async (id: string) => {
     const res = await axios.delete(`/api/cart/${id}`, {
       data: { userId: user.uid },
@@ -35,40 +36,32 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
 
     console.log(res);
 
-    if(res.data?.success){
-        setItems(res.data.items);
-        toast.success("Item removed from cart");
+    if (res.data?.success) {
+      setItems(res.data.items);
+      toast.success("Item removed from cart");
     }
     fetchCart();
   };
 
   const total = items.reduce(
     (acc: number, item: any) => acc + item.price * item.quantity,
-    0
+    0,
   );
-
 
   return (
     <Sheet open={openCart} onOpenChange={setOpenCart}>
-
       <SheetContent side="right" className="w-96 p-4">
         <SheetHeader>
-          <SheetTitle className="text-xl font-bold">
-            Your Cart
-          </SheetTitle>
+          <SheetTitle className="text-xl font-bold">Your Cart</SheetTitle>
         </SheetHeader>
 
-       
         <div className="mt-4 space-y-4 max-h-[70vh] overflow-y-auto">
-
-            {loading ? (
-                <p className="text-center text-gray-500">Loading...</p>
-            ) : null}
+          {loading ? (
+            <p className="text-center text-gray-500">Loading...</p>
+          ) : null}
 
           {items.length === 0 && (
-            <p className="text-gray-500 text-center">
-              Cart is empty
-            </p>
+            <p className="text-gray-500 text-center">Cart is empty</p>
           )}
 
           {items.map((item: any) => (
@@ -82,15 +75,10 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
               />
 
               <div className="flex-1">
-                <h3 className="text-sm font-semibold">
-                  {item.title}
-                </h3>
+                <h3 className="text-sm font-semibold">{item.title}</h3>
 
-                <p className="text-xs text-gray-500">
-                  ₹ {item.price}
-                </p>              
+                <p className="text-xs text-gray-500">₹ {item.price}</p>
 
-                
                 <Button
                   size="sm"
                   variant="destructive"
@@ -102,17 +90,18 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
               </div>
             </div>
           ))}
-
-
         </div>
 
-      
         <div className="mt-6 border-t pt-4">
-          <h3 className="font-bold text-lg">
-            Total: ₹ {total}
-          </h3>
+          <h3 className="font-bold text-lg">Total: ₹ {total}</h3>
 
-          <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700">
+          <Button
+            className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+            onClick={() => {
+              setOpenCart(false);
+              router.push("/checkout");
+            }}
+          >
             Checkout
           </Button>
         </div>
