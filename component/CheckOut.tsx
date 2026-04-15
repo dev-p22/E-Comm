@@ -39,8 +39,8 @@ export default function CheckOut() {
   );
 
   const handleOrder = async () => {
-    if (!form.name || !form.address || !form.city || !form.pincode) {
-      return toast.error("Please fill all fields");
+    if ((!form.name && form.name.length < 3 ) || (!form.address && form.address.length < 8) || (!form.city && form.city.length < 3)|| ( !form.pincode && form.pincode.length < 3)) {
+      return toast.error("Please fill all  the fields correctly");
     }
 
     try {
