@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
-export default function CheckOut({ user }: any) {
+export default function CheckOut() {
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const user = useSelector((state: any) => state.auth.user); 
 
   const [form, setForm] = useState({
     name: "",
@@ -24,6 +27,8 @@ export default function CheckOut({ user }: any) {
     setLoading(false);
   };
 
+
+
   useEffect(() => {
     if (user?.uid) fetchCart();
   }, [user]);
@@ -39,16 +44,6 @@ export default function CheckOut({ user }: any) {
     }
 
     try {
-    //   const res = await axios.post("/api/order", {
-    //     userId: user.uid,
-    //     items: cart,
-    //     total,
-    //     shipping: form,
-    //   });
-
-    //   if (res.data.success) {
-        //     setCart([]);
-        //   }
         toast.success("Order placed successfully!");
     } catch (err) {
       toast.error("Something went wrong");
