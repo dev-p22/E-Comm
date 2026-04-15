@@ -2,7 +2,6 @@
 
 import Navbar from "@/component/common/Navbar";
 import ProductList from "@/component/common/ProductList";
-import { fetchProducts } from "@/utils/fetchProducts";
 import axios from "axios";
 import { useEffect, useState } from "react";
 

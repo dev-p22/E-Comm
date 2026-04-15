@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import ProductCard from "./ProductCard";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
-import AddProductForm from "../admin/AddProductForm";
 import UpdateProductDialog from "../admin/UpdateProductDialog";
 import { set } from "zod";
 
