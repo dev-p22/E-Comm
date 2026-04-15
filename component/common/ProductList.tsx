@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import axios from "axios";
 
 import { useSelector } from "react-redux";
@@ -8,7 +8,7 @@ import ProductCard from "./ProductCard";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import UpdateProductDialog from "../admin/UpdateProductDialog";
-import { set } from "zod";
+
 
 export default function ProductList({
   products,
