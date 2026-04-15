@@ -111,7 +111,7 @@ export default function RegisterForm() {
         </form>{" "}
         <p className="text-center text-sm text-gray-500">
           {" "}
-          Already have an account? Login{" "}
+          Already have an account?  <span className="text-blue-500" onClick={()=>router.replace("/login")}>Login</span>
         </p>{" "}
       </div>{" "}
     </div>
