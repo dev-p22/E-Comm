@@ -28,7 +28,11 @@ export default function CheckOut() {
   const fetchCart = async () => {
     setLoading(true);
     const res = await axios.get(`/api/cart?userId=${user.uid}`);
-    setCart(res.data);
+
+    
+
+
+    setCart(res.data.items);
     setLoading(false);
   };
 
@@ -36,7 +40,7 @@ export default function CheckOut() {
     if (user?.uid) fetchCart();
   }, [user]);
 
-  const total = cart.reduce(
+  const total = cart?.reduce(
     (acc: number, item: any) => acc + item.price * item.quantity,
     0
   );

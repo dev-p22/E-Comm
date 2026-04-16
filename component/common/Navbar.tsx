@@ -19,32 +19,35 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/authSlice";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import CartSidebar from "../CartSidebar";
+import axios from "axios";
 
 export default function Navbar() {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [openCart , setOpenCart] = useState(false);
+  const [openCart, setOpenCart] = useState(false);
   const user = useSelector((state: any) => state.auth.user);
   const router = useRouter();
 
-  
-
-
   const handleLogout = async () => {
-    await signOut(auth);
+    try {
+      // Call logout API endpoint (clears authToken cookie)
+      await axios.post("/api/logout", {}, {
+        withCredentials: true,
+      });
 
-    localStorage.removeItem("user");
+      // Clear Redux state
+      dispatch(logout());
+      setOpen(false);
 
-    dispatch(logout());
-    setOpen(false);
-
-    toast.success("logged Out successfully");
-    router.push("/login");
+      toast.success("Logged out successfully");
+      router.push("/login");
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed");
+    }
   };
 
   return (

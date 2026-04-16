@@ -1,3 +1,4 @@
+import { requireAdmin, requireAuth } from "@/lib/api-utils";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 import { NextResponse } from "next/server";
@@ -6,12 +7,12 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
 
-    const authHeader = req.headers.get("authorization");
+    const user = await requireAdmin();
 
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }   
-
+    if(!user){
+      return NextResponse.json({error:"Unauthorized"},{status:401})
+    }    
+     
     const data = await req.json();
 
     if(!data.title || !data.price || !data.description || !data.category){

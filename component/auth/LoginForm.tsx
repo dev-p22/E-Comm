@@ -3,13 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginType } from "@/zod/authSchema";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/authSlice";
+import axios from "axios";
 
 export default function LoginForm() {
   const {
@@ -25,31 +23,31 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginType) => {
     try {
-      const userCred = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
+      // Call API with credentials to send cookies
+      const response = await axios.post("/api/login", data, {
+        withCredentials: true,
+      });
 
-      const user = userCred.user;
+      if (response.data.success) {
+        // Fetch user info to populate Redux
+        try {
+          const userResponse = await axios.get("/api/me", {
+            withCredentials: true,
+          });
+          if (userResponse.data) {
+            dispatch(setUser(userResponse.data));
+          }
+        } catch (getUserError) {
+          console.error("Failed to fetch user info:", getUserError);
+        }
 
-      const snap = await getDoc(doc(db, "users", user.uid));
-      const userData = snap.data();
-
-      const finalUser = {
-        uid: user.uid,
-        email: user.email,
-        role: userData?.role || "user",
-        fullName: userData?.fullName,
-      };
-
-      dispatch(setUser(finalUser));
-      localStorage.setItem("user", JSON.stringify(finalUser));
-
-      toast.success("Login successful!");
-      router.push("/");
+        toast.success(response.data.message || "Login successful!");
+        router.push("/");
+      }
     } catch (err: any) {
-      toast.error(err.message);
+      const errorMessage =
+        err.response?.data?.error || "Login failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
@@ -105,7 +103,13 @@ export default function LoginForm() {
         </form>{" "}
         <p className="text-center text-sm text-gray-500">
           {" "}
-          Don’t have an account? <span className="text-blue-500" onClick={()=>router.replace("/register")}>Register</span>
+          Don’t have an account?{" "}
+          <span
+            className="text-blue-500"
+            onClick={() => router.replace("/register")}
+          >
+            Register
+          </span>
         </p>{" "}
       </div>{" "}
     </div>

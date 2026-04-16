@@ -1,14 +1,19 @@
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { NextResponse } from "next/server";
+import { requireAuth, apiError, apiSuccess } from "@/lib/api-utils";
 
 export async function POST(req: Request) {
   try {
+    const user = await requireAuth();
+    if (!user) return apiError("Unauthorized", 401);
 
-    
-    const { userId, product } = await req.json();
+    const { product } = await req.json();
 
-    const cartRef = doc(db, "carts", userId);
+    if (!product || !product.id) {
+      return apiError("Invalid product data", 400);
+    }
+
+    const cartRef = doc(db, "carts", user.uid);
     const snap = await getDoc(cartRef);
 
     let items = [];
@@ -17,15 +22,14 @@ export async function POST(req: Request) {
       items = snap.data().items || [];
     }
 
-    
     const existingIndex = items.findIndex(
-      (item: any) => item.productId === product.id
+      (item: any) => item.productId === product.id,
     );
 
     if (existingIndex !== -1) {
       items[existingIndex].quantity += 1;
     } else {
-        items.push({
+      items.push({
         productId: product.id,
         title: product.title,
         price: product.price,
@@ -36,46 +40,105 @@ export async function POST(req: Request) {
 
     await setDoc(cartRef, { items });
 
-    return Response.json({ success: true, items });
+    return apiSuccess({ success: true, items });
   } catch (err: any) {
-    return Response.json({ error: err.message }, { status: 500 });
+    console.error("Cart error:", err);
+    return apiError("Failed to update cart", 500);
   }
 }
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
+  try {
+    // ✅ Require authentication
+    const user = await requireAuth();
+    if (!user) return apiError("Unauthorized", 401);
 
-  const snap = await getDoc(doc(db, "carts", userId!));
+    // ✅ Use user.uid from middleware
+    const snap = await getDoc(doc(db, "carts", user.uid));
 
-  if (!snap.exists()) return Response.json([]);
+    if (!snap.exists()) {
+      return apiSuccess({ items: [] });
+    }
 
-  return Response.json(snap.data().items);
+    return apiSuccess({ items: snap.data().items || [] });
+  } catch (err: any) {
+    console.error("Get cart error:", err);
+    return apiError("Failed to fetch cart", 500);
+  }
 }
 
 export async function PATCH(req: Request) {
-  const { userId, productId, type } = await req.json();
+  try {
+    // ✅ Require authentication
+    const user = await requireAuth();
+    if (!user) return apiError("Unauthorized", 401);
 
-  const cartRef = doc(db, "carts", userId);
-  const snap = await getDoc(cartRef);
+    const { productId, type } = await req.json();
 
-  if (!snap.exists()) return NextResponse.json({ success: false });
-
-  let items = snap.data().items;
-
-  items = items.map((item: any) => {
-    if (item.productId === productId) {
-      if (type === "inc") item.quantity += 1;
-      if (type === "dec") item.quantity -= 1;
-
-      
-      if (item.quantity < 1) item.quantity = 1;
+    if (!productId || !type) {
+      return apiError("Missing productId or type", 400);
     }
-    return item;
-  });
 
-  await setDoc(cartRef, { items });
+    // ✅ Use user.uid from middleware
+    const cartRef = doc(db, "carts", user.uid);
+    const snap = await getDoc(cartRef);
 
-  return NextResponse.json({ success: true, items });
+    if (!snap.exists()) {
+      return apiError("Cart not found", 404);
+    }
+
+    let items = snap.data().items;
+
+    items = items.map((item: any) => {
+      if (item.productId === productId) {
+        if (type === "inc") item.quantity += 1;
+        if (type === "dec") item.quantity -= 1;
+
+        // Prevent quantity from going below 1
+        if (item.quantity < 1) item.quantity = 1;
+      }
+      return item;
+    });
+
+    await setDoc(cartRef, { items });
+
+    return apiSuccess({ success: true, items });
+  } catch (err: any) {
+    console.error("PATCH cart error:", err);
+    return apiError("Failed to update cart", 500);
+  }
 }
 
+export async function DELETE(req: Request) {
+  try {
+    // ✅ Require authentication
+    const user = await requireAuth();
+    if (!user) return apiError("Unauthorized", 401);
+
+    const { productId } = await req.json();
+
+    if (!productId) {
+      return apiError("Missing productId", 400);
+    }
+
+    // ✅ Use user.uid from middleware
+    const cartRef = doc(db, "carts", user.uid);
+    const snap = await getDoc(cartRef);
+
+    if (!snap.exists()) {
+      return apiError("Cart not found", 404);
+    }
+
+    let items = snap.data().items;
+
+    // Remove the product from cart
+    items = items.filter((item: any) => item.productId !== productId);
+
+    await setDoc(cartRef, { items });
+
+    return apiSuccess({ success: true, items });
+  } catch (err: any) {
+    console.error("DELETE cart error:", err);
+    return apiError("Failed to remove from cart", 500);
+  }
+}

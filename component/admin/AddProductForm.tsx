@@ -21,16 +21,15 @@ export default function AddProductForm() {
   const onSubmit = async (data: ProductType) => {
 
     const token = await auth.currentUser?.getIdToken();
-
-    console.log("token",token)
-
+    
     const res = await axios.post("/api/products", data,{
       headers:{
         Authorization : `Bearer ${token}`
-      }
+      },
+      withCredentials : true,
     });
 
-    console.log(res)
+    console.log(res);
     if(res.data?.success){
         toast.success("Product added successfully!");
     }else{

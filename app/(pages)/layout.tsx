@@ -1,21 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const user = useSelector((state: any) => state.auth.user);
-  const router = useRouter();
-
-  
-
-  useEffect(()=>{
-    if(!user){
-      router.push("/login");
-    }
-  },[user])
-
+  // Route protection is handled by middleware.ts
+  // No need for client-side redirects to avoid hydration mismatch
   return <div className="w-full h-screen">{children}</div>;
 }
 

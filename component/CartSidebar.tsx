@@ -15,49 +15,79 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function CartSidebar({ setOpenCart, openCart, user }: any) {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const fetchCart = async () => {
-    setLoading(true);
-    const res = await axios.get(`/api/cart?userId=${user.uid}`);
-    setItems(res.data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      // API now uses authenticated user from middleware
+      const res = await axios.get("/api/cart", {
+        withCredentials: true,
+      });
+      // Extract items array from response
+      setItems(res.data?.items || []);
+    } catch (error: any) {
+      console.error("Failed to fetch cart:", error);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (user?.uid) fetchCart();
+    if (user?.uid) {
+      fetchCart();
+    }
   }, [user, openCart]);
 
-  const removeItem = async (id: string) => {
-    const res = await axios.delete(`/api/cart/${id}`, {
-      data: { userId: user.uid },
-    });
+  const removeItem = async (productId: string) => {
+    try {
+      const res = await axios.delete("/api/cart", {
+        data: { productId },
+        withCredentials: true,
+      });
 
-    if (res.data?.success) {
-      setItems(res.data.items);
-      toast.success("Item removed from cart");
+      if (res.data?.success) {
+        setItems(res.data.items || []);
+        toast.success("Item removed from cart");
+      }
+    } catch (error: any) {
+      toast.error("Failed to remove item");
+      console.error("Remove item error:", error);
     }
-    fetchCart();
   };
 
   const updateQuantity = async (productId: string, type: "inc" | "dec") => {
-    const res = await axios.patch("/api/cart/", {
-      userId: user.uid,
-      productId,
-      type,
-    });
+    try {
+      const res = await axios.patch(
+        "/api/cart",
+        {
+          productId,
+          type,
+        },
+        {
+          withCredentials: true,
+        },
+      );
 
-    if (res.data?.success) {
-      setItems(res.data.items);
+      if (res.data?.success) {
+        setItems(res.data.items || []);
+      }
+    } catch (error: any) {
+      toast.error("Failed to update quantity");
+      console.error("Update quantity error:", error);
     }
   };
 
-  const total = items.reduce(
-    (acc: number, item: any) => acc + item.price * item.quantity,
-    0,
-  );
+  // Ensure items is an array before using reduce
+  const total = Array.isArray(items)
+    ? items.reduce(
+        (acc: number, item: any) => acc + (item.price * item.quantity || 0),
+        0,
+      )
+    : 0;
 
   return (
     <Sheet open={openCart} onOpenChange={setOpenCart}>
