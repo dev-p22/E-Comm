@@ -19,7 +19,7 @@ export default function CheckOut() {
 
   const user = useSelector((state: any) => state.auth.user);
 
-  console.log(cart, "cart fjafslasdfj");
+  
 
   const {
     register,
@@ -64,11 +64,7 @@ export default function CheckOut() {
     }
   };
 
-  useEffect(() => {
-    if (cart.length === 0) {
-      router.push("/");
-    }
-  }, [cart, router]);
+ 
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
@@ -141,6 +137,9 @@ export default function CheckOut() {
           <div className="border-t pt-4 mt-4">
             <h3 className="text-lg font-bold">Total: ₹ {total}</h3>
 
+
+          {
+              cart.length >= 1 && (                  
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -148,6 +147,8 @@ export default function CheckOut() {
             >
               {isSubmitting ? "Placing..." : "Place Order"}
             </Button>
+              )
+          }
           </div>
         </div>
       </form>
