@@ -1,14 +1,9 @@
-'use client'
 
 import CheckOut from '@/component/CheckOut'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 
-function Page() {
-  
-  const user = useSelector((state:any)=> state.auth.user);
-
-  
+function page() {       
   return (
     <div className='w-full h-screen'>
       <CheckOut/>
@@ -16,4 +11,4 @@ function Page() {
   )
 }
 
-export default Page
+export default page
