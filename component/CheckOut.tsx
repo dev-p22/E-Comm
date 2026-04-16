@@ -5,6 +5,8 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { db } from "@/lib/firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 export default function CheckOut() {
   const [cart, setCart] = useState<any[]>([]);
@@ -44,6 +46,15 @@ export default function CheckOut() {
     }
 
     try {
+        const orderRef = collection(db,"orders");  
+        await addDoc(orderRef,{
+          userId : user.uid,
+          items : cart,
+          total,
+          shippingDetails : form,
+          createdAt : new Date()
+        })
+
         toast.success("Order placed successfully!");
     } catch (err) {
       toast.error("Something went wrong");
