@@ -9,7 +9,7 @@ export async function DELETE(
 
   const { userId } = await req.json();
 
-   const { id } = await params;
+  const { id } = await params;
 
   const cartRef = doc(db, "carts", userId);
   const snap = await getDoc(cartRef);

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function CartSidebar({ setOpenCart, openCart, user }: any) {
@@ -34,13 +35,23 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
       data: { userId: user.uid },
     });
 
-    console.log(res);
-
     if (res.data?.success) {
       setItems(res.data.items);
       toast.success("Item removed from cart");
     }
     fetchCart();
+  };
+
+  const updateQuantity = async (productId: string, type: "inc" | "dec") => {
+    const res = await axios.patch("/api/cart/", {
+      userId: user.uid,
+      productId,
+      type,
+    });
+
+    if (res.data?.success) {
+      setItems(res.data.items);
+    }
   };
 
   const total = items.reduce(
@@ -69,15 +80,38 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
               key={item.productId}
               className="flex gap-3 border rounded-lg p-3 shadow-sm"
             >
-              <img
-                src={item.image}
-                className="w-16 h-16 rounded object-cover"
+              <Image
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrPYwxUp3JKC6jOxAZeioI-VF4o_Chj9yF2A&s"
+                alt={item.title}
+                width={80}
+                height={80}
+                className="rounded object-cover"
               />
 
               <div className="flex-1">
                 <h3 className="text-sm font-semibold">{item.title}</h3>
 
                 <p className="text-xs text-gray-500">₹ {item.price}</p>
+
+                <div className="flex items-center gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => updateQuantity(item.productId, "dec")}
+                  >
+                    -
+                  </Button>
+
+                  <span className="text-sm font-medium">{item.quantity}</span>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => updateQuantity(item.productId, "inc")}
+                  >
+                    +
+                  </Button>
+                </div>
 
                 <Button
                   size="sm"
