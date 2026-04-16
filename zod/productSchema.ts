@@ -7,8 +7,7 @@ export const productSchema = z.object({
 
   price: z
     .number("Price must be a number")
-    .min(1, "Price must be greater than 0"),
-
+    .min(1, "Price must be greater than 0").max(100000,"price must be less than 100000"),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters").regex(/^[a-zA-Z0-9\s,.-]+$/, "Address can only contain letters, numbers, spaces, commas, periods, and hyphens"),

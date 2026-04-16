@@ -10,12 +10,19 @@ import { addDoc, collection } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { checkoutSchema } from "@/zod/checkout";
+import { useRouter } from "next/navigation";
 
 export default function CheckOut() {
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const router = useRouter()
 
   const user = useSelector((state: any) => state.auth.user);
+
+  console.log(cart,'cart fjafslasdfj');
+
+
+  
 
   const {
     register,
@@ -63,6 +70,10 @@ export default function CheckOut() {
       toast.error("Something went wrong");
     }
   };
+
+  if(cart.length === 0){
+    return (router.push('/'))
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">

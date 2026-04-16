@@ -143,6 +143,7 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
                   </Button>
                 </div>
 
+            
                 <Button
                   size="sm"
                   variant="destructive"
@@ -159,6 +160,9 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
         <div className="mt-6 border-t pt-4">
           <h3 className="font-bold text-lg">Total: ₹ {total}</h3>
 
+
+            {
+                items.length >= 1 && (
           <Button
             className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
             onClick={() => {
@@ -168,6 +172,11 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
           >
             Checkout
           </Button>
+                )
+              }
+              
+
+
         </div>
       </SheetContent>
     </Sheet>
