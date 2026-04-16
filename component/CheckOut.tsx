@@ -15,14 +15,11 @@ import { useRouter } from "next/navigation";
 export default function CheckOut() {
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   const user = useSelector((state: any) => state.auth.user);
 
-  console.log(cart,'cart fjafslasdfj');
-
-
-  
+  console.log(cart, "cart fjafslasdfj");
 
   const {
     register,
@@ -36,9 +33,6 @@ export default function CheckOut() {
     setLoading(true);
     const res = await axios.get(`/api/cart?userId=${user.uid}`);
 
-    
-
-
     setCart(res.data.items);
     setLoading(false);
   };
@@ -49,10 +43,9 @@ export default function CheckOut() {
 
   const total = cart?.reduce(
     (acc: number, item: any) => acc + item.price * item.quantity,
-    0
+    0,
   );
 
-  
   const onSubmit = async (data: any) => {
     try {
       const orderRef = collection(db, "orders");
@@ -61,7 +54,7 @@ export default function CheckOut() {
         userId: user.uid,
         items: cart,
         total,
-        shippingDetails: data, 
+        shippingDetails: data,
         createdAt: new Date(),
       });
 
@@ -71,16 +64,15 @@ export default function CheckOut() {
     }
   };
 
-  if(cart.length === 0){
-    return (router.push('/'))
-  }
+  useEffect(() => {
+    if (cart.length === 0) {
+      router.push("/");
+    }
+  }, [cart, router]);
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
-      
-     
       <form onSubmit={handleSubmit(onSubmit)} className="contents">
-        
         <div className="border rounded-xl p-5 shadow">
           <h2 className="text-xl font-bold mb-4">Shipping Details</h2>
 
@@ -149,7 +141,6 @@ export default function CheckOut() {
           <div className="border-t pt-4 mt-4">
             <h3 className="text-lg font-bold">Total: ₹ {total}</h3>
 
-            
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -159,7 +150,6 @@ export default function CheckOut() {
             </Button>
           </div>
         </div>
-
       </form>
     </div>
   );
