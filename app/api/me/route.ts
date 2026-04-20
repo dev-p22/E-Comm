@@ -3,6 +3,7 @@ import { apiError, apiSuccess } from "@/lib/api-utils";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+
 /**
  * GET /api/me
  * Returns current authenticated user's information
@@ -33,6 +34,7 @@ export async function GET(req: any) {
       email: userData.email,
       fullName: userData.fullName,
       role: user.role || userData.role || "user",
+      success : true,
     });
   } catch (error: any) {
     console.error("Get user error:", error);

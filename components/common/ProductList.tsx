@@ -1,14 +1,12 @@
 "use client";
 
-import {  useState } from "react";
-import axios from "axios";
-
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import ProductCard from "./ProductCard";
 import { auth } from "@/lib/firebase";
 import toast from "react-hot-toast";
 import UpdateProductDialog from "../admin/UpdateProductDialog";
-
+import { deleteProduct } from "@/services/productServices";
 
 export default function ProductList({
   products,
@@ -17,39 +15,27 @@ export default function ProductList({
 }: {
   products: any[];
   loading: boolean;
-  fetchProducts : ()=>void;
+  fetchProducts: () => void;
 }) {
-  const user = useSelector((state: any) => state.auth.user);  
-  const [open , setOpen] = useState(false);
+  const user = useSelector((state: any) => state.auth.user);
+  const [open, setOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  
+
   const handleDelete = async (id: string) => {
-
     const token = await auth.currentUser?.getIdToken();
-   
 
-    const res = await axios.delete(`/api/products/${id}`,{
-      headers : {
-        Authorization : `Bearer ${token}`
-      }
-    });
+    const res = await deleteProduct(id, token || "");
 
-    if(res.data?.success){
+    if (res?.success) {
       toast.success("Product deleted successfully!");
       fetchProducts();
     }
   };
 
   const handleEdit = (product: any) => {
-   
+    setOpen(true);
 
-
-    setOpen(true); 
-    
     setSelectedProduct(product);
-
-   
-    
   };
 
   return (
@@ -67,7 +53,12 @@ export default function ProductList({
           />
         ))}
       </div>
-       <UpdateProductDialog open={open} setOpen={setOpen} product={selectedProduct} fetchProducts={fetchProducts}/>
+      <UpdateProductDialog
+        open={open}
+        setOpen={setOpen}
+        product={selectedProduct}
+        fetchProducts={fetchProducts}
+      />
     </div>
   );
 }

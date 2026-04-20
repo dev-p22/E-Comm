@@ -22,7 +22,7 @@ import { logout } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import CartSidebar from "../CartSidebar";
-import axios from "axios";
+import { logoutUser } from "@/services/authServices";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -33,10 +33,8 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      // Call logout API endpoint (clears authToken cookie)
-      await axios.post("/api/logout", {}, {
-        withCredentials: true,
-      });
+      
+      await logoutUser();
 
       // Clear Redux state
       dispatch(logout());

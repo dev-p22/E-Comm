@@ -3,14 +3,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterType } from "@/zod/authSchema";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useRegister } from "@/hooks/useRegister";
 
 function Page() {
-
    const {
     register,
     handleSubmit,
@@ -20,31 +16,8 @@ function Page() {
   });
 
   const router = useRouter();
+  const handleRegister = useRegister();
 
-  const onSubmit = async (data: RegisterType) => {
-    try {
-      const userCred = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password,
-      );
-
-      const user = userCred.user;
-
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        email: data.email,
-        fullName: data.fullName,
-        role: "user",
-        createdAt: new Date(),
-      });
-
-      toast.success("Registration successful!");
-      router.push("/login");
-    } catch (err: any) {
-      toast.error(err.message);
-    }
-  };
 
   return (
     <div className='w-full h-screen'>
@@ -53,7 +26,7 @@ function Page() {
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Create Account
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(handleRegister)} className="space-y-4">
           <div>
             <input
               {...register("fullName")}

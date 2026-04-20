@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -10,16 +9,13 @@ import { addDoc, collection } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { checkoutSchema } from "@/zod/checkout";
-import { useRouter } from "next/navigation";
+import { getCart } from "@/services/cartServices";
 
 export default function CheckOut() {
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const user = useSelector((state: any) => state.auth.user);
-
-  
 
   const {
     register,
@@ -31,9 +27,9 @@ export default function CheckOut() {
 
   const fetchCart = async () => {
     setLoading(true);
-    const res = await axios.get(`/api/cart?userId=${user.uid}`);
+    const res = await getCart();
 
-    setCart(res.data.items);
+    setCart(res?.items);
     setLoading(false);
   };
 
@@ -63,8 +59,6 @@ export default function CheckOut() {
       toast.error("Something went wrong");
     }
   };
-
- 
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
@@ -137,18 +131,15 @@ export default function CheckOut() {
           <div className="border-t pt-4 mt-4">
             <h3 className="text-lg font-bold">Total: ₹ {total}</h3>
 
-
-          {
-              cart.length >= 1 && (                  
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full mt-4 bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? "Placing..." : "Place Order"}
-            </Button>
-              )
-          }
+            {cart.length >= 1 && (
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full mt-4 bg-green-600 hover:bg-green-700"
+              >
+                {isSubmitting ? "Placing..." : "Place Order"}
+              </Button>
+            )}
           </div>
         </div>
       </form>

@@ -1,7 +1,7 @@
 "use client";
 
-import Navbar from "@/component/common/Navbar";
-import NotAuthorize from "@/component/common/NotAuthorize";
+import Navbar from "@/components/common/Navbar";
+import NotAuthorize from "@/components/common/NotAuthorize";
 import React from "react";
 import { useSelector } from "react-redux";
 

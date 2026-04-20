@@ -1,12 +1,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductType } from "@/zod/productSchema";
-import toast from "react-hot-toast";
-import { auth } from "@/lib/firebase";
 import { useEffect } from "react";
 import {
   Dialog,
@@ -14,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useUpdateProduct } from "@/hooks/useUpdateProduct";
 
 export default function UpdateProductDialog({
   open,
@@ -24,7 +22,7 @@ export default function UpdateProductDialog({
   open: boolean;
   setOpen: (val: boolean) => void;
   product: any;
-  fetchProducts : ()=>void;
+  fetchProducts: () => void;
 }) {
   const {
     register,
@@ -34,8 +32,12 @@ export default function UpdateProductDialog({
   } = useForm<ProductType>({
     resolver: zodResolver(productSchema),
   });
+  const handleUpdateProduct = useUpdateProduct({
+    id: product?.id,
+    setOpen,
+    fetchProducts,
+  });
 
-  
   useEffect(() => {
     if (product) {
       reset({
@@ -47,27 +49,6 @@ export default function UpdateProductDialog({
     }
   }, [product, reset]);
 
-  const onSubmit = async (data: ProductType) => {
-    const token = await auth.currentUser?.getIdToken();
-
-    try {
-      const res = await axios.put(`/api/products/${product.id}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.data?.success) {
-        toast.success("Product updated!");
-        setOpen(false);
-
-       fetchProducts();
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Update failed");
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="bg-white rounded-xl">
@@ -75,14 +56,15 @@ export default function UpdateProductDialog({
           <DialogTitle>Edit Product </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
-
+        <form onSubmit={handleSubmit(handleUpdateProduct)} className="space-y-4 mt-4">
           <input
             {...register("title")}
             placeholder="Title"
             className="w-full p-2 border rounded"
           />
-          {errors.title && <p className="text-red-500">{errors.title.message}</p>}
+          {errors.title && (
+            <p className="text-red-500">{errors.title.message}</p>
+          )}
 
           <input
             {...register("price", { valueAsNumber: true })}
@@ -90,7 +72,9 @@ export default function UpdateProductDialog({
             placeholder="Price"
             className="w-full p-2 border rounded"
           />
-          {errors.price && <p className="text-red-500">{errors.price.message}</p>}
+          {errors.price && (
+            <p className="text-red-500">{errors.price.message}</p>
+          )}
 
           <textarea
             {...register("description")}

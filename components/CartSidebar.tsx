@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { getCart, removeFromCart, updateCart } from "@/services/cartServices";
 
 export default function CartSidebar({ setOpenCart, openCart, user }: any) {
   const [items, setItems] = useState<any[]>([]);
@@ -23,11 +22,10 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
     try {
       setLoading(true);
       // API now uses authenticated user from middleware
-      const res = await axios.get("/api/cart", {
-        withCredentials: true,
-      });
+      const res = await getCart();
+
       // Extract items array from response
-      setItems(res.data?.items || []);
+      setItems(res?.items || []);
     } catch (error: any) {
       console.error("Failed to fetch cart:", error);
       setItems([]);
@@ -44,13 +42,9 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
 
   const removeItem = async (productId: string) => {
     try {
-      const res = await axios.delete("/api/cart", {
-        data: { productId },
-        withCredentials: true,
-      });
-
-      if (res.data?.success) {
-        setItems(res.data.items || []);
+      const res = await  removeFromCart(productId);
+      if (res?.success) {
+        setItems(res.items || []);
         toast.success("Item removed from cart");
       }
     } catch (error: any) {
@@ -61,19 +55,9 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
 
   const updateQuantity = async (productId: string, type: "inc" | "dec") => {
     try {
-      const res = await axios.patch(
-        "/api/cart",
-        {
-          productId,
-          type,
-        },
-        {
-          withCredentials: true,
-        },
-      );
-
-      if (res.data?.success) {
-        setItems(res.data.items || []);
+      const res = await updateCart(productId,type);
+      if (res?.success) {
+        setItems(res?.items || []);
       }
     } catch (error: any) {
       toast.error("Failed to update quantity");
@@ -143,7 +127,6 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
                   </Button>
                 </div>
 
-            
                 <Button
                   size="sm"
                   variant="destructive"
@@ -160,23 +143,17 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
         <div className="mt-6 border-t pt-4">
           <h3 className="font-bold text-lg">Total: ₹ {total}</h3>
 
-
-            {
-                items.length >= 1 && (
-          <Button
-            className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
-            onClick={() => {
-              setOpenCart(false);
-              router.push("/checkout");
-            }}
-          >
-            Checkout
-          </Button>
-                )
-              }
-              
-
-
+          {items.length >= 1 && (
+            <Button
+              className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+              onClick={() => {
+                setOpenCart(false);
+                router.push("/checkout");
+              }}
+            >
+              Checkout
+            </Button>
+          )}
         </div>
       </SheetContent>
     </Sheet>

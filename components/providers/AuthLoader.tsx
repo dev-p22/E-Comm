@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setAuthReady, setUser } from "@/redux/authSlice";
 import axios from "axios";
+import { getCurrentUser } from "@/services/authServices";
 
 export function AuthLoader() {
   const dispatch = useDispatch();
@@ -13,13 +14,11 @@ export function AuthLoader() {
       try {
         // Fetch current user from /api/me
         // This will return user info if valid JWT exists in cookies
-        const response = await axios.get("/api/me", {
-          withCredentials: true,
-        });
+        const res = await getCurrentUser();
 
-        if (response.data) {
+        if (res?.success) {
           // Set user in Redux with full user info (including role)
-          dispatch(setUser(response.data));
+          dispatch(setUser(res));
         }
       } catch (error: any) {
         // No valid session, user will be null

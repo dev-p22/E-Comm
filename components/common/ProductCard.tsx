@@ -1,24 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { Pencil, Trash2, ShoppingCart } from "lucide-react";
-import toast from "react-hot-toast";
 import Image from "next/image";
+import { useAddToCart } from "@/hooks/useAddToCart";
 
 export default function ProductCard({ product, user, onDelete, onEdit }: any) {
-  const handleAddToCart = async () => {
-    const res = await axios.post("/api/cart", {
-      userId: user.uid,
-      product,
-    });
-
-    if (res.data?.success) {
-      toast.success("Product added to cart!");
-    } else {
-      toast.error("Failed to add to cart");
-    }
-  };
+  const handleAddToCart = useAddToCart(user?.id, product);
 
   return (
     <div className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all overflow-hidden border">

@@ -1,5 +1,5 @@
 
-import CheckOut from '@/component/CheckOut'
+import CheckOut from '@/components/CheckOut'
 
 
 function page() {       

@@ -1,8 +1,8 @@
 "use client";
 
-import Navbar from "@/component/common/Navbar";
-import ProductList from "@/component/common/ProductList";
-import axios from "axios";
+import Navbar from "@/components/common/Navbar";
+import ProductList from "@/components/common/ProductList";
+import { fetchAllProducts } from "@/services/productServices";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -11,9 +11,9 @@ export default function Home() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    const res = await axios.get("/api/products");
-    setProducts(res.data);
-    setLoading(false)
+    const data = await fetchAllProducts();
+    setProducts(data);
+    setLoading(false);
   };
 
   useEffect(() => {
