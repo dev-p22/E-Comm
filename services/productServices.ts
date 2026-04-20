@@ -26,7 +26,7 @@ export const addProduct = async (data: Product , token : string | "")=>{
    }
 }
 
-export const updateProduct = async (id:number , data : Product , token : string | "")=>{
+export const updateProduct = async (id:string , data : Product , token : string | "")=>{
     try{
        const response = await axiosClient.put(PRODUCT_API.PRODUCT_UPDATE_API(id), data, {
         headers: {
