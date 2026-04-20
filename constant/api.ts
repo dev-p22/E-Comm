@@ -15,5 +15,5 @@ export const PRODUCT_API = {
   PRODUCT_GET_API: "/api/products",
   PRODUCT_POST_API: "/api/products",
   PRODUCT_DELETE_API: (id: string) => `/api/products/${id}`,
-  PRODUCT_UPDATE_API: (id: number) => `/api/products/${id}`,
+  PRODUCT_UPDATE_API: (id: string) => `/api/products/${id}`,
 };
