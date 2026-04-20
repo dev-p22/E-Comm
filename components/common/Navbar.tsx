@@ -21,8 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import CartSidebar from "../CartSidebar";
+
 import { logoutUser } from "@/services/authServices";
+import CartSidebar from "../CartSidebar";
 
 export default function Navbar() {
   const dispatch = useDispatch();
