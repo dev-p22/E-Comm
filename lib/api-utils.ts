@@ -72,7 +72,7 @@ export function validateRequired(
   return {
     valid: missing.length === 0,
     missing,
-  };
+  };  
 }
 
 /**
