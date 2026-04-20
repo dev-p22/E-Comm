@@ -51,16 +51,16 @@ function Page() {
                 </p>
               )}
             </div>
-            <button
+           <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all"
+              className={`${isSubmitting ? "bg-blue-800" : "bg-blue-600"} font-extrabold font-sans w-full text-xl text-white py-3 rounded-lg hover:bg-blue-700 transition-all cursor-pointer`}
             >
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </form>
           <p className="text-center text-sm text-gray-500">
-            Don’t have an account?
+            Don’t have an account?{" "}
             <span
               className="text-blue-500 cursor-pointer"
               onClick={() => router.replace("/register")}

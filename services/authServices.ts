@@ -1,5 +1,5 @@
 import axiosClient from "@/constant/apiClient";
-import { AUTH_API } from "@/constant/api";
+import { AUTH_API } from "@/constant/endpoints";
 import { Auth, createUserWithEmailAndPassword } from "firebase/auth";
 import { Firestore, doc, setDoc } from "firebase/firestore";
 import { LoginData } from "@/types/loginUser";

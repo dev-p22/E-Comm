@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useAddToCart } from "@/hooks/useAddToCart";
+import useDeleteProduct from "@/hooks/useDeleteProduct";
 
-export default function ProductCard({ product, user, onDelete, onEdit }: any) {
+export default function ProductCard({ product, user, onEdit }: any) {
   const handleAddToCart = useAddToCart(user?.id, product);
+
+  const handleDeleteProduct = useDeleteProduct(product?.id);
 
   return (
     <div className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all overflow-hidden border">
@@ -57,7 +60,7 @@ export default function ProductCard({ product, user, onDelete, onEdit }: any) {
 
               <Button
                 className="bg-red-600 hover:bg-red-700"
-                onClick={() => onDelete(product.id)}
+                onClick={handleDeleteProduct}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

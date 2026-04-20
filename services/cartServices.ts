@@ -1,10 +1,13 @@
-import { CART_API } from "@/constant/api";
+import { CART_API } from "@/constant/endpoints";
 import axiosClient from "@/constant/apiClient";
 import { Product } from "@/types/product";
 
 export const addToCart = async (userId: string, product: Product) => {
   try {
-    const res = await axiosClient.post(CART_API.ADD_TO_CART_API, { userId, product });
+    const res = await axiosClient.post(CART_API.ADD_TO_CART_API, {
+      userId,
+      product,
+    });
 
     return res.data;
   } catch (error) {

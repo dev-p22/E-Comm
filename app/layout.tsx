@@ -4,6 +4,9 @@ import "./globals.css";
 import ReduxProvider from "@/components/providers/ReduxProvider";
 import { Toaster } from "react-hot-toast";
 import {  AuthLoader } from "@/components/providers/AuthLoader";
+import QueryClientProviders from "@/components/providers/QueryClientProviders";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,16 +28,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+         <QueryClientProviders>
         <ReduxProvider>
           <AuthLoader/>
           {children}
         </ReduxProvider>
+      </QueryClientProviders>
         <Toaster />
       </body>
     </html>

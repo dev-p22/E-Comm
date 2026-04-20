@@ -17,12 +17,10 @@ export default function UpdateProductDialog({
   open,
   setOpen,
   product,
-  fetchProducts,
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
   product: any;
-  fetchProducts: () => void;
 }) {
   const {
     register,
@@ -32,10 +30,10 @@ export default function UpdateProductDialog({
   } = useForm<ProductType>({
     resolver: zodResolver(productSchema),
   });
+
   const handleUpdateProduct = useUpdateProduct({
     id: product?.id,
     setOpen,
-    fetchProducts,
   });
 
   useEffect(() => {
