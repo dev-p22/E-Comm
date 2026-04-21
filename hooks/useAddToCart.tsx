@@ -1,15 +1,10 @@
-import { addToCart } from "@/services/cartServices";
+import { useAddToCartMutation } from "@/lib/mutation";
 import { Product } from "@/types/product";
-import toast from "react-hot-toast";
 
-export  function useAddToCart(userid : string , product : Product){
-    return async function handleAddToCart(){
-         const res = await addToCart(userid , product);
+export function useAddToCart(userId: string, product: Product) {
+  const { mutate } = useAddToCartMutation();
 
-    if (res?.success) {
-      toast.success("Product added to cart!");
-    } else {
-      toast.error("Failed to add to cart");
-    }
-    }
+  return async function handleAddToCart() {
+    mutate({ userId, product });
+  };
 }

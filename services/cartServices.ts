@@ -34,9 +34,9 @@ export const removeFromCart = async (productId: string) => {
     throw error;
   }
 };
+
 export const updateCart = async (productId: string, type: string) => {
   try {
-    console.log(productId, type, "djfalsdfj");
     const response = await axiosClient.patch(CART_API.UPDATE_CART_API, {
       productId,
       type,

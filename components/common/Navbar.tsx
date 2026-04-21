@@ -21,9 +21,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-import { logoutUser } from "@/services/authServices";
 import CartSidebar from "../CartSidebar";
+import { useLogoutUserMutation } from "@/lib/mutation";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -31,22 +30,16 @@ export default function Navbar() {
   const [openCart, setOpenCart] = useState(false);
   const user = useSelector((state: any) => state.auth.user);
   const router = useRouter();
+  const { mutate } = useLogoutUserMutation();
 
   const handleLogout = async () => {
-    try {
-      
-      await logoutUser();
-
-      // Clear Redux state
-      dispatch(logout());
-      setOpen(false);
-
-      toast.success("Logged out successfully");
-      router.push("/login");
-    } catch (error: any) {
-      console.error("Logout error:", error);
-      toast.error("Logout failed");
-    }
+      mutate(undefined, {
+        onSuccess: () => {
+          dispatch(logout());
+          setOpen(false);
+          router.push("/login");
+        },
+      });
   };
 
   return (
@@ -57,12 +50,14 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
-            
-            <div className="relative cursor-pointer" onClick={()=>setOpenCart(true)}>
+          <div
+            className="relative cursor-pointer"
+            onClick={() => setOpenCart(true)}
+          >
             <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer" />
-      </div>
+          </div>
 
-      <CartSidebar openCart={openCart} setOpenCart={setOpenCart} user={user}/>
+          <CartSidebar openCart={openCart} setOpenCart={setOpenCart} />
 
           <DropdownMenu>
             <DropdownMenuTrigger>
@@ -74,14 +69,15 @@ export default function Navbar() {
               </Avatar>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent className="w-40" >
-              
+            <DropdownMenuContent className="w-40">
               <DropdownMenuItem onClick={() => router.push("/")}>
                 Home
               </DropdownMenuItem>
 
               {user?.role === "admin" && (
-                <DropdownMenuItem onClick={()=>router.push("/admin/addproduct")}>
+                <DropdownMenuItem
+                  onClick={() => router.push("/admin/addproduct")}
+                >
                   Add Product
                 </DropdownMenuItem>
               )}

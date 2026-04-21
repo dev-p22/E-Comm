@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -9,13 +8,13 @@ import { addDoc, collection } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { checkoutSchema } from "@/zod/checkout";
-import { getCart } from "@/services/cartServices";
+import { useGetCart } from "@/lib/query";
+import { Item } from "@/types/item";
+import Image from "next/image";
 
 export default function CheckOut() {
-  const [cart, setCart] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-
   const user = useSelector((state: any) => state.auth.user);
+  const { data, isPending } = useGetCart();
 
   const {
     register,
@@ -25,20 +24,8 @@ export default function CheckOut() {
     resolver: zodResolver(checkoutSchema),
   });
 
-  const fetchCart = async () => {
-    setLoading(true);
-    const res = await getCart();
-
-    setCart(res?.items);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (user?.uid) fetchCart();
-  }, [user]);
-
-  const total = cart?.reduce(
-    (acc: number, item: any) => acc + item.price * item.quantity,
+  const total = data?.items?.reduce(
+    (acc: number, item: Item) => acc + item.price * item.quantity,
     0,
   );
 
@@ -48,7 +35,7 @@ export default function CheckOut() {
 
       await addDoc(orderRef, {
         userId: user.uid,
-        items: cart,
+        items: data?.items,
         total,
         shippingDetails: data,
         createdAt: new Date(),
@@ -114,11 +101,17 @@ export default function CheckOut() {
         <div className="border rounded-xl p-5 shadow">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
 
-          {loading && <p>Loading...</p>}
+          {isPending && <p>Loading...</p>}
 
-          {cart.map((item: any) => (
+          {data?.items.map((item: any) => (
             <div key={item.productId} className="flex gap-3 mb-4">
-              <img src={item.image} className="w-16 h-16 rounded" />
+              <Image
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrPYwxUp3JKC6jOxAZeioI-VF4o_Chj9yF2A&s"
+                alt={item.title}
+                width={50}
+                height={50}
+                className="rounded object-cover"
+              />
               <div>
                 <h3 className="text-sm font-semibold">{item.title}</h3>
                 <p className="text-xs text-gray-500">
@@ -131,7 +124,7 @@ export default function CheckOut() {
           <div className="border-t pt-4 mt-4">
             <h3 className="text-lg font-bold">Total: ₹ {total}</h3>
 
-            {cart.length >= 1 && (
+            {data?.items.length >= 1 && (
               <Button
                 type="submit"
                 disabled={isSubmitting}

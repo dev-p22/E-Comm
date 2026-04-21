@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -8,67 +7,29 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { getCart, removeFromCart, updateCart } from "@/services/cartServices";
+import { useGetCart } from "@/lib/query";
+import useRemoveFromCart from "@/hooks/useRemoveFromCart";
+import { useUpdateCartMutation } from "@/lib/mutation";
+import { Item } from "@/types/item";
 
-export default function CartSidebar({ setOpenCart, openCart, user }: any) {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+export default function CartSidebar({
+  setOpenCart,
+  openCart,
+}: {
+  setOpenCart: (openCart: boolean) => void;
+  openCart: boolean;
+}) {
   const router = useRouter();
 
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      // API now uses authenticated user from middleware
-      const res = await getCart();
+  const { data, isLoading } = useGetCart();
+  const { removeFromCart } = useRemoveFromCart();
+  const { mutate: updateCartMutate } = useUpdateCartMutation();
 
-      // Extract items array from response
-      setItems(res?.items || []);
-    } catch (error: any) {
-      console.error("Failed to fetch cart:", error);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.uid) {
-      fetchCart();
-    }
-  }, [user, openCart]);
-
-  const removeItem = async (productId: string) => {
-    try {
-      const res = await  removeFromCart(productId);
-      if (res?.success) {
-        setItems(res.items || []);
-        toast.success("Item removed from cart");
-      }
-    } catch (error: any) {
-      toast.error("Failed to remove item");
-      console.error("Remove item error:", error);
-    }
-  };
-
-  const updateQuantity = async (productId: string, type: "inc" | "dec") => {
-    try {
-      const res = await updateCart(productId,type);
-      if (res?.success) {
-        setItems(res?.items || []);
-      }
-    } catch (error: any) {
-      toast.error("Failed to update quantity");
-      console.error("Update quantity error:", error);
-    }
-  };
-
-  // Ensure items is an array before using reduce
-  const total = Array.isArray(items)
-    ? items.reduce(
-        (acc: number, item: any) => acc + (item.price * item.quantity || 0),
+  const total = Array.isArray(data?.items)
+    ? data?.items.reduce(
+        (acc: number, item: Item) => acc + (item.price * item.quantity || 0),
         0,
       )
     : 0;
@@ -81,15 +42,17 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
         </SheetHeader>
 
         <div className="mt-4 space-y-4 max-h-[70vh] overflow-y-auto">
-          {loading ? (
+          {isLoading ? (
             <p className="text-center text-gray-500">Loading...</p>
           ) : null}
 
-          {items.length === 0 && (
+          {isLoading && <p className="text-center text-gray-500">Loading...</p>}
+
+          {!isLoading && data?.items?.length === 0 && (
             <p className="text-gray-500 text-center">Cart is empty</p>
           )}
 
-          {items.map((item: any) => (
+          {data?.items.map((item: Item) => (
             <div
               key={item.productId}
               className="flex gap-3 border rounded-lg p-3 shadow-sm"
@@ -111,7 +74,16 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => updateQuantity(item.productId, "dec")}
+                    onClick={() => {
+                      if (item.quantity <= 1) {
+                        removeFromCart(item.productId);
+                      } else {
+                        updateCartMutate({
+                          productId: item.productId,
+                          type: "dec",
+                        });
+                      }
+                    }}
                   >
                     -
                   </Button>
@@ -121,7 +93,12 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => updateQuantity(item.productId, "inc")}
+                    onClick={() =>
+                      updateCartMutate({
+                        productId: item.productId,
+                        type: "inc",
+                      })
+                    }
                   >
                     +
                   </Button>
@@ -131,7 +108,7 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
                   size="sm"
                   variant="destructive"
                   className="mt-2"
-                  onClick={() => removeItem(item.productId)}
+                  onClick={() => removeFromCart(item.productId)}
                 >
                   Remove
                 </Button>
@@ -143,7 +120,7 @@ export default function CartSidebar({ setOpenCart, openCart, user }: any) {
         <div className="mt-6 border-t pt-4">
           <h3 className="font-bold text-lg">Total: ₹ {total}</h3>
 
-          {items.length >= 1 && (
+          {data?.items?.length >= 1 && (
             <Button
               className="w-full mt-3 bg-blue-600 hover:bg-blue-700"
               onClick={() => {

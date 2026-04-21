@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-change-in-production",
+  process.env.JWT_SECRET,
 );
 
 async function generateJWT(payload: any) {
@@ -16,7 +16,7 @@ async function generateJWT(payload: any) {
     .sign(JWT_SECRET);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: Request){
   try {
     const { email, password } = await req.json();
 

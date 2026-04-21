@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUpdateProduct } from "@/hooks/useUpdateProduct";
+import { Product } from "@/types/product";
 
 export default function UpdateProductDialog({
   open,
@@ -20,7 +21,7 @@ export default function UpdateProductDialog({
 }: {
   open: boolean;
   setOpen: (val: boolean) => void;
-  product: any;
+  product: Product;
 }) {
   const {
     register,
@@ -32,7 +33,7 @@ export default function UpdateProductDialog({
   });
 
   const handleUpdateProduct = useUpdateProduct({
-    id: product?.id,
+    id : product?.id || "",
     setOpen,
   });
 
